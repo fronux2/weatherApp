@@ -1,70 +1,49 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, Image, ScrollView } from 'react-native'
-
-import apiConfig from './config.dev.js'
-
+import useInfoWeather from '../hooks/useInfoWeather.jsx'
+import ListOfWeather from './ListOfWeather.jsx'
+import ListOfFore from './ListOfFore.jsx'
 export default function InfoWeather () {
-  const [weather, setWeather] = useState()
-  const [fore, setFore] = useState()
-  const [horas, setHoras] = useState()
-
-  useEffect(() => {
-    fetch(`https://api.weatherapi.com/v1/forecast.json?key=${apiConfig.apiUrl}&q=${'san bernardo'}&q=07112&days=7`)
-      .then(res => res.json())
-      .then(data => {
-        setWeather(data)
-        setFore(data.forecast.forecastday)
-      })
-    fetch(`https://api.weatherapi.com/v1/forecast.json?key=${apiConfig.apiUrl}&q=${'san bernardo'}&q=07112&days=1`)
-      .then(res => res.json())
-      .then(data => {
-        setHoras(data.forecast.forecastday)
-      })
-
-    console.log('jajaw')
-  }, [])
+  const {current, foreCast, hour} = useInfoWeather()
 
   return (
     <ScrollView >
-      <View style={styles.container}>
-        <View style={styles.container2}>
+      <View style={styles.container}>        
 
-        </View>
-
-        {weather && (
+        {current && (
           <Text style={{ color: 'white' }}>
-            {`${weather.current.condition.text} `}
+            {`${current.current.condition.text} `}
           </Text>
         )}
 
         <View style={styles.container2}>
-          {weather && (
+          {current && (
             <Image
-              source={{ uri: `https:${weather.current.condition.icon}` }}
+              source={{ uri: `https:${current.current.condition.icon}` }}
               style={{ width: 150, height: 150 }}
             />
 
           )}
-          {weather && (
+          {current && (
           <Text style={styles.temperatura} >
-            {`${weather.current.temp_c}°C `}
+            {`${current.current.temp_c}°C `}
           </Text>
           )}
         </View>
-        {weather && (
+        {current && (
             <Text style={styles.nombre}>
-              {`${weather.location.name} `}
+              {`${current.location.name} `}
             </Text>
         )}
 
-        {weather && (
+        {current && (
           <Text style={styles.pais}>
-            {`${weather.location.country} `}
+            {`${current.location.country} `}
           </Text>
         )}
-        {weather && (
+        {current && (
           <Text style={styles.region}>
-            {`${weather.location.region} `}
+            {`${current.location.region} `}
           </Text>
         )}
 
@@ -72,42 +51,10 @@ export default function InfoWeather () {
 
         <ScrollView horizontal={true}>
           <View style={styles.container3}>
-            {horas && (
-              horas.map(data => {
-                return (
-                <View key={data.date_epoch} style={styles.container2}>
-                  {data.hour && (
-                    data.hour.map(horas => {
-                      return (
-                    <View key={horas.time_epoch} style={styles.container3}>
-                      <Text style={styles.text}>{horas.time.substring(10, 16)}</Text>
-                      <Image
-                        source={{ uri: `https:${horas.condition.icon}` }}
-                        style={styles.image}
-                      />
-                    <Text style={styles.text}>{horas.temp_c}°</Text>
-                    </View>
-                      )
-                    }))}
-                </View>
-                )
-              })
-            )}
+            <ListOfWeather hour={hour} />
           </View>
         </ScrollView>
-        {fore && (
-          fore.map(data => {
-            return (
-            <View key={data.date_epoch} style={styles.container2}>
-              <Text style={styles.text}>{data.date}          </Text>
-              <Image style={styles.image} source={{ uri: `https:${data.day.condition.icon}` }}></Image>
-              <Text style={styles.text}>{data.day.maxtemp_c}/</Text>
-              <Text style={styles.text}>{data.day.mintemp_c}</Text>
-            </View>
-            )
-          })
-        )}
-
+        <ListOfFore foreCast={foreCast}/>
       </View>
     </ScrollView>
   )
